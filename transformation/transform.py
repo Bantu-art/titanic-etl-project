@@ -1,7 +1,7 @@
 import pandas as pd
 
 def transform_data():
-    df = pd.read_csv("../raw_titanic.csv")
+    df = pd.read_csv("../data/raw_titanic.csv")
 
     # If Age is missing for a passenger in a certain class 
     # it gets filled with the median age of all in that class.
@@ -46,7 +46,7 @@ def transform_data():
 
 
     # Save cleaned dataset
-    df.to_csv("../clean_titanic.csv", index=False)
+    df.to_csv("../data/clean_titanic.csv", index=False)
     print("Data transformed and saved as clean_titanic.csv")
 
     # Show start and end of the DataFrame
