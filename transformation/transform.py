@@ -27,6 +27,23 @@ def transform_data():
     # strip the name column of the surname and the comma
     df["Name"] = df["Name"].str.split(",").str[1].str.strip()
 
+    df["TicketPrefix"] = (
+    df["Ticket"]
+    .str.replace(r"\d+", "", regex=True)   # remove numbers
+    .str.replace(r"[./]", "", regex=True) # remove dots/slashes
+    .str.strip()                          # clean spaces
+)
+    df["TicketPrefix"] = df["TicketPrefix"].replace("", "None")  # mark empty as None
+
+    # Reorder: TicketPrefix comes before Ticket
+    cols = list(df.columns)
+    ticket_idx = cols.index("Ticket")
+    cols.remove("TicketPrefix")
+    cols.insert(ticket_idx, "TicketPrefix")
+    df = df[cols]
+
+    # df["Ticket"] = df["Ticket"].str.split(" ").str[1].str.strip()
+
 
     # Save cleaned dataset
     df.to_csv("../clean_titanic.csv", index=False)
