@@ -1,13 +1,16 @@
 import pandas as pd
+import os
 
 def transform_data():
-    df = pd.read_csv("../data/raw_titanic.csv")
+    # Use absolute paths
+    data_dir = "/home/bantu/dataProjects/titanic_pipeline/data"
+    df = pd.read_csv(f"{data_dir}/raw_titanic.csv")
 
     # If Age is missing for a passenger in a certain class 
     # it gets filled with the median age of all in that class.
     df["Age"] = df.groupby(["Sex", "Pclass"])["Age"].transform(
-    lambda x: x.fillna(x.median())
-)
+        lambda x: x.fillna(x.median())
+    )
     # drop Cabin (too many missing values)
     df.drop(columns=["Cabin"], inplace=True)
 
@@ -28,11 +31,11 @@ def transform_data():
     df["Name"] = df["Name"].str.split(",").str[1].str.strip()
 
     df["TicketPrefix"] = (
-    df["Ticket"]
-    .str.replace(r"\d+", "", regex=True)   # remove numbers
-    .str.replace(r"[./]", "", regex=True) # remove dots/slashes
-    .str.strip()                          # clean spaces
-)
+        df["Ticket"]
+        .str.replace(r"\d+", "", regex=True)   # remove numbers
+        .str.replace(r"[./]", "", regex=True) # remove dots/slashes
+        .str.strip()                          # clean spaces
+    )
     df["TicketPrefix"] = df["TicketPrefix"].replace("", "None")  # mark empty as None
 
     # Reorder: TicketPrefix comes before Ticket
@@ -42,12 +45,9 @@ def transform_data():
     cols.insert(ticket_idx, "TicketPrefix")
     df = df[cols]
 
-    # df["Ticket"] = df["Ticket"].str.split(" ").str[1].str.strip()
-
-
     # Save cleaned dataset
-    df.to_csv("../data/clean_titanic.csv", index=False)
-    print("Data transformed and saved as clean_titanic.csv")
+    df.to_csv(f"{data_dir}/clean_titanic.csv", index=False)
+    print("✅ Data transformed and saved as clean_titanic.csv")
 
     # Show start and end of the DataFrame
     print("\n--- First 5 rows ---")
