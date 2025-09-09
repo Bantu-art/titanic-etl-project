@@ -5,8 +5,8 @@ A complete ETL (Extract, Transform, Load) pipeline for processing Titanic passen
 ## Project Structure
 
 ```
-titanic_pipeline/
-├── data/                    # Data storage directory
+titanic-etl-project/
+├── data/                    # Data storage directory (created during setup)
 │   ├── raw_titanic.csv     # Raw extracted data
 │   ├── clean_titanic.csv   # Transformed data
 │   └── titanic.db          # SQLite database
@@ -21,7 +21,9 @@ titanic_pipeline/
 ├── orchestration/          # Airflow orchestration
 │   └── dags/
 │       └── dag.py          # Airflow DAG definition
+├── venv/                   # Virtual environment (created during setup)
 ├── requirements.txt        # Python dependencies
+├── setup.sh               # Automated setup script
 └── README.md              # This file
 ```
 
@@ -31,32 +33,45 @@ titanic_pipeline/
 - Apache Airflow (configured separately in ~/airflow)
 - Internet connection (for data extraction)
 
-## Installation & Setup
+## Quick Start
 
-### 1. Clone/Navigate to Project Directory
-
-```bash
-cd /home/bantu/dataProjects/titanic_pipeline
-```
-
-### 2. Create Virtual Environment
+### Option 1: Automated Setup (Recommended)
 
 ```bash
-# Create virtual environment
-python3 -m venv venv
+# Clone the repository
+git clone <repository-url>
+cd titanic-etl-project
+
+# Run automated setup
+./setup.sh
 
 # Activate virtual environment
 source venv/bin/activate
 ```
 
-### 3. Install Dependencies
+### Option 2: Manual Setup
 
 ```bash
-# Install all required packages
+# Clone and navigate to project
+git clone <repository-url>
+cd titanic-etl-project
+
+# Create virtual environment
+python3 -m venv venv
+source venv/bin/activate
+
+# Install dependencies
 pip install -r requirements.txt
+
+# Create data directory
+mkdir -p data
+
+# Setup Airflow DAG
+mkdir -p ~/airflow/dags
+cp orchestration/dags/dag.py ~/airflow/dags/titanic_pipeline_dag.py
 ```
 
-### 4. Verify Installation
+### Verify Installation
 
 ```bash
 # Check if Airflow is properly installed
@@ -64,33 +79,6 @@ airflow version
 
 # Check if pandas is working
 python -c "import pandas as pd; print('Pandas version:', pd.__version__)"
-```
-
-### 5. Setup Airflow Configuration
-
-Since your Airflow configuration is in the `~/airflow` directory, ensure the DAG is accessible:
-
-```bash
-# Create symbolic link to make DAG accessible to Airflow
-ln -sf /home/bantu/dataProjects/titanic_pipeline/orchestration/dags/dag.py ~/airflow/dags/titanic_pipeline_dag.py
-
-# Or copy the DAG file
-cp orchestration/dags/dag.py ~/airflow/dags/titanic_pipeline_dag.py
-```
-
-### 6. Initialize Airflow Database (if not done already)
-
-```bash
-# Initialize Airflow database
-airflow db init
-
-# Create admin user (if not exists)
-airflow users create \
-    --username admin \
-    --firstname Admin \
-    --lastname User \
-    --role Admin \
-    --email admin@example.com
 ```
 
 ## How It Works
@@ -190,31 +178,41 @@ python transformation/test.py
 
 ### Key Settings in DAG
 
-- **Owner**: bantu
+- **Owner**: data_engineer
 - **Schedule**: Daily (`@daily`)
-- **Start Date**: September 5, 2025
+- **Start Date**: January 1, 2024
 - **Catchup**: Disabled (only runs for current dates)
 
 ### File Paths
 
-All scripts use absolute paths to ensure compatibility with Airflow:
-- Data directory: `/home/bantu/dataProjects/titanic_pipeline/data`
-- Project root: `/home/bantu/dataProjects/titanic_pipeline`
+All scripts use relative paths for portability:
+- Automatically detects project root directory
+- Works from any installation location
+- No hardcoded paths
 
 ## Troubleshooting
 
 ### Common Issues
 
-1. **Import Errors in Airflow**
+1. **DAG Not Visible in Airflow**
    ```bash
-   # Ensure project path is in Python path
-   export PYTHONPATH="${PYTHONPATH}:/home/bantu/dataProjects/titanic_pipeline"
+   # Check if DAG file exists
+   ls ~/airflow/dags/titanic_pipeline_dag.py
+   
+   # Test DAG syntax
+   python ~/airflow/dags/titanic_pipeline_dag.py
+   
+   # List all DAGs
+   airflow dags list | grep titanic
    ```
 
 2. **Permission Issues**
    ```bash
-   # Make sure data directory is writable
-   chmod 755 /home/bantu/dataProjects/titanic_pipeline/data
+   # Make setup script executable
+   chmod +x setup.sh
+   
+   # Ensure data directory is writable
+   chmod 755 data/
    ```
 
 3. **Virtual Environment Issues**
@@ -222,15 +220,17 @@ All scripts use absolute paths to ensure compatibility with Airflow:
    # Deactivate and reactivate
    deactivate
    source venv/bin/activate
+   
+   # Reinstall dependencies if needed
+   pip install -r requirements.txt
    ```
 
-4. **Airflow DAG Not Visible**
+4. **Path Issues**
    ```bash
-   # Check DAG syntax
-   python orchestration/dags/dag.py
-   
-   # Refresh Airflow
-   airflow dags list | grep titanic
+   # All scripts now use relative paths
+   # Run from project root directory
+   cd titanic-etl-project
+   python extraction/extract.py
    ```
 
 ## Dependencies
@@ -249,6 +249,8 @@ Key packages used:
 - Create visualization dashboard
 - Add email notifications for pipeline failures
 - Implement incremental data loading
+- Add Docker containerization
+- Create CI/CD pipeline
 
 ## License
 
