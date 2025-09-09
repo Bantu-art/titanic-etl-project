@@ -2,9 +2,10 @@ import pandas as pd
 import os
 
 def transform_data():
-    # Use absolute paths
-    data_dir = "/home/bantu/dataProjects/titanic_pipeline/data"
-    df = pd.read_csv(f"{data_dir}/raw_titanic.csv")
+    # Use relative path from project root
+    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    data_dir = os.path.join(project_root, "data")
+    df = pd.read_csv(os.path.join(data_dir, "raw_titanic.csv"))
 
     # If Age is missing for a passenger in a certain class 
     # it gets filled with the median age of all in that class.
@@ -46,7 +47,7 @@ def transform_data():
     df = df[cols]
 
     # Save cleaned dataset
-    df.to_csv(f"{data_dir}/clean_titanic.csv", index=False)
+    df.to_csv(os.path.join(data_dir, "clean_titanic.csv"), index=False)
     print("✅ Data transformed and saved as clean_titanic.csv")
 
     # Show start and end of the DataFrame
