@@ -1,23 +1,9 @@
 import sys
 import os
-from pathlib import Path
 
-# Find project root - works for different installation paths
-dag_dir = Path(__file__).parent
-project_name = "titanic-etl-project"
-
-# Look for project in common locations
-for parent in [dag_dir.parent, dag_dir.parent.parent, dag_dir.parent.parent.parent]:
-    project_path = parent / project_name
-    if project_path.exists():
-        sys.path.append(str(project_path))
-        break
-else:
-    # Fallback - assume standard structure
-    home_dir = Path.home()
-    project_path = home_dir / "dataProjects" / project_name
-    if project_path.exists():
-        sys.path.append(str(project_path))
+# PROJECT_ROOT replaced by setup script
+PROJECT_ROOT = "{{PROJECT_ROOT}}"
+sys.path.insert(0, PROJECT_ROOT)
 
 from airflow import DAG
 from airflow.providers.standard.operators.python import PythonOperator
