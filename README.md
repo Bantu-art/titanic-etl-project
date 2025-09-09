@@ -38,9 +38,9 @@ titanic-etl-project/
 ### Option 1: Automated Setup (Recommended)
 
 ```bash
-# Clone the repository
-git clone <repository-url>
-cd titanic-etl-project
+# Clone the repository (can use any folder name)
+git clone <repository-url> my-titanic-project
+cd my-titanic-project
 
 # Run automated setup
 ./setup.sh
@@ -66,9 +66,9 @@ pip install -r requirements.txt
 # Create data directory
 mkdir -p data
 
-# Setup Airflow DAG
+# Setup Airflow DAG (replace PROJECT_ROOT placeholder)
 mkdir -p ~/airflow/dags
-cp orchestration/dags/dag.py ~/airflow/dags/titanic_pipeline_dag.py
+sed "s|{{PROJECT_ROOT}}|$(pwd)|g" orchestration/dags/dag.py > ~/airflow/dags/titanic_pipeline_dag.py
 ```
 
 ### Verify Installation
@@ -129,14 +129,12 @@ python loading/load.py
 ### Option 2: Run via Airflow (Production)
 
 ```bash
-# Start Airflow webserver (in one terminal)
-airflow webserver --port 8080
-
-# Start Airflow scheduler (in another terminal)
-airflow scheduler
+# Start Airflow (all-in-one)
+airflow standalone
 
 # Access Airflow UI at http://localhost:8080
-# Enable and trigger the 'titanic_pipeline' DAG
+# Look for DAG named after your project folder (e.g., 'titanic-etl-project_dag')
+# Enable and trigger the DAG
 ```
 
 ### Option 3: Run Airflow DAG from Command Line
@@ -189,6 +187,7 @@ All scripts use relative paths for portability:
 - Automatically detects project root directory
 - Works from any installation location
 - No hardcoded paths
+- DAG path is injected during setup for reliability
 
 ## Troubleshooting
 
@@ -196,14 +195,17 @@ All scripts use relative paths for portability:
 
 1. **DAG Not Visible in Airflow**
    ```bash
-   # Check if DAG file exists
-   ls ~/airflow/dags/titanic_pipeline_dag.py
+   # Check if DAG file exists (name matches your project folder)
+   ls ~/airflow/dags/*_dag.py
    
    # Test DAG syntax
    python ~/airflow/dags/titanic_pipeline_dag.py
    
    # List all DAGs
    airflow dags list | grep titanic
+   
+   # Re-run setup if DAG is missing
+   ./setup.sh
    ```
 
 2. **Permission Issues**
@@ -229,8 +231,11 @@ All scripts use relative paths for portability:
    ```bash
    # All scripts now use relative paths
    # Run from project root directory
-   cd titanic-etl-project
+   cd your-project-folder
    python extraction/extract.py
+   
+   # If DAG can't find modules, re-run setup
+   ./setup.sh
    ```
 
 ## Dependencies
@@ -251,6 +256,19 @@ Key packages used:
 - Implement incremental data loading
 - Add Docker containerization
 - Create CI/CD pipeline
+
+## Portability Features
+
+✅ **Fully Portable Setup**:
+- Works with any project folder name
+- No hardcoded paths in any scripts
+- Automatic path detection and injection
+- One-command setup for any environment
+
+✅ **Cross-Platform Compatible**:
+- Uses `os.path.join()` for path handling
+- Relative path calculations work on any OS
+- Setup script adapts to local environment
 
 ## License
 
