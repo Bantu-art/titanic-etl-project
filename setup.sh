@@ -5,7 +5,9 @@ echo "🚀 Setting up Titanic ETL Project..."
 
 # Get project directory
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_NAME="$(basename "$PROJECT_DIR")"
 echo "📁 Project directory: $PROJECT_DIR"
+echo "📁 Project name: $PROJECT_NAME"
 
 # Create virtual environment
 echo "🐍 Creating virtual environment..."
@@ -25,11 +27,8 @@ echo "✈️ Setting up Airflow DAGs..."
 AIRFLOW_HOME="${HOME}/airflow"
 mkdir -p "${AIRFLOW_HOME}/dags"
 
-# Copy DAG with dynamic path
-cp orchestration/dags/dag.py "${AIRFLOW_HOME}/dags/titanic_pipeline_dag.py"
-
-# Update DAG to use current project path
-sed -i "s|titanic-etl-project|$(basename "$PROJECT_DIR")|g" "${AIRFLOW_HOME}/dags/titanic_pipeline_dag.py"
+# Copy DAG and replace placeholder with actual project path
+sed "s|{{PROJECT_ROOT}}|${PROJECT_DIR}|g" orchestration/dags/dag.py > "${AIRFLOW_HOME}/dags/${PROJECT_NAME}_dag.py"
 
 echo "✅ Setup complete!"
 echo ""
@@ -41,3 +40,4 @@ echo "   - python transformation/transform.py"
 echo "   - python loading/load.py"
 echo "3. Start Airflow: airflow standalone"
 echo "4. Access Airflow UI: http://localhost:8080"
+echo "5. Look for DAG: ${PROJECT_NAME}_dag"
